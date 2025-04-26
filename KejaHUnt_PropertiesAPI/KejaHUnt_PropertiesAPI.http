@@ -1,0 +1,6 @@
+@KejaHUnt_PropertiesAPI_HostAddress = http://localhost:5234
+
+GET {{KejaHUnt_PropertiesAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
