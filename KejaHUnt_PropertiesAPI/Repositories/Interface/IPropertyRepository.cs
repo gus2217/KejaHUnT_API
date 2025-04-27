@@ -11,7 +11,8 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Interface
 
         Task<Property?> GetPropertyByIdAsync(int id);
 
-        Task<Property?> UpdateAsync(int id, UpdatePropertyRequestDto property);
+        Task<Property?> UpdateAsync(Property property);
+
 
         Task<Property?> DeleteAync(int id);
     }

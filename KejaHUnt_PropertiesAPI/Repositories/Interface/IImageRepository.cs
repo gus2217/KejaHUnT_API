@@ -7,5 +7,6 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Interface
     {
         Task<Guid> Upload(IFormFile formFile);
         Task<FileHandlerResponse> GetByDocumentIdAsync(Guid documentId);
+        Task<Guid> Edit(Guid? documentId, IFormFile formFile);
     }       
 }

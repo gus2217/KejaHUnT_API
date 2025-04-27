@@ -8,6 +8,7 @@ namespace KejaHUnt_PropertiesAPI.Models.Dto
         public string Name { get; set; }
         public string Location { get; set; }
         public string Type { get; set; }
+        public Guid? DocumentId { get; set; }
         public List<UnitDto> Units { get; set; } = new List<UnitDto>();
     }
 }

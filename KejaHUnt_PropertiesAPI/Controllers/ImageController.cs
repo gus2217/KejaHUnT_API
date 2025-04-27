@@ -68,6 +68,24 @@ namespace KejaHUnt_PropertiesAPI.Controllers
             }
         }
 
+        [HttpPut]
+        [Route("{documentId:guid}")]
+        public async Task<IActionResult> EditFile(Guid documentId, [FromForm] IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            try
+            {
+                // Edit the file and get the updated DocumentId
+                var updatedDocumentId = await _imageRepository.Edit(documentId, file);
+                return Ok(new { documentId = updatedDocumentId, message = "File updated successfully." });
+            }
+            catch (ApplicationException ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
 
     }
 }

@@ -10,5 +10,6 @@ namespace KejaHUnt_PropertiesAPI.Models.Dto
         public int Bathrooms { get; set; }
         public double Size { get; set; }
         public int NoOfUnits { get; set; }
+        public Guid? DocumentId { get; set; }
     }
 }

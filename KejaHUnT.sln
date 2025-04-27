@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KejaHUnt_PropertiesAPI", "K
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KejaHUnT_TenantAPI", "KejaHUnT_TenantAPI\KejaHUnT_TenantAPI.csproj", "{72EF6F37-C1A4-4E2D-9361-4CCD50D734C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileHandler", "FileHandler\FileHandler.csproj", "{5F53CC75-FD67-4D48-96D4-F98B72C73C4E}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{72EF6F37-C1A4-4E2D-9361-4CCD50D734C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72EF6F37-C1A4-4E2D-9361-4CCD50D734C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72EF6F37-C1A4-4E2D-9361-4CCD50D734C8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F53CC75-FD67-4D48-96D4-F98B72C73C4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F53CC75-FD67-4D48-96D4-F98B72C73C4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F53CC75-FD67-4D48-96D4-F98B72C73C4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F53CC75-FD67-4D48-96D4-F98B72C73C4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

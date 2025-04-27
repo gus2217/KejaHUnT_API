@@ -46,33 +46,56 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Implementation
             return await _dbContext.Properties.Include(x => x.Units).FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<Property?> UpdateAsync(int id, UpdatePropertyRequestDto property)
+        public async Task<Property?> UpdateAsync(Property property)
         {
-            var existingProperty= await _dbContext.Properties.Include(x => x.Units)
-               .FirstOrDefaultAsync(x => x.Id == id);
+            var existingProperty = await _dbContext.Properties
+                .Include(x => x.Units)
+                .FirstOrDefaultAsync(x => x.Id == property.Id);
 
             if (existingProperty == null)
             {
                 return null;
             }
 
-            _dbContext.Entry(existingProperty).CurrentValues.SetValues(property);
+            // Update basic fields
+            existingProperty.Name = property.Name;
+            existingProperty.Location = property.Location;
+            existingProperty.Type = property.Type;
+            existingProperty.DocumentId = property.DocumentId;
 
-            _dbContext.Units.RemoveRange(existingProperty.Units);
+            // Hold new units in a temporary list
+            List<Unit> newUnits = new List<Unit>();
 
-            existingProperty.Units = property.Units.Select(u => new Unit
+            if (property.Units != null && property.Units.Any())
             {
-                Price = u.Price,
-                Type= u.Type,
-                Bathrooms = u.Bathrooms,
-                Size = u.Size,
-                NoOfUnits = u.NoOfUnits,
-            }).ToList();
+                foreach (var incomingUnit in property.Units)
+                {
+                    newUnits.Add(new Unit
+                    {
+                        Price = incomingUnit.Price,
+                        Type = incomingUnit.Type,
+                        Bathrooms = incomingUnit.Bathrooms,
+                        Size = incomingUnit.Size,
+                        NoOfUnits = incomingUnit.NoOfUnits,
+                        DocumentId = incomingUnit.DocumentId,
+                        PropertyId = existingProperty.Id
+                    });
+                }
+            }
 
+            // Now that new units are added, clear the existing units that are not needed
+
+            // Add the new units to the existing property
+            existingProperty.Units = newUnits;
+
+            // Save changes
             await _dbContext.SaveChangesAsync();
 
             return existingProperty;
-
         }
+
+
+
+
     }
 }
