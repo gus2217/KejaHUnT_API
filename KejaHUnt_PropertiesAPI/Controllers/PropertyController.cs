@@ -122,16 +122,19 @@ namespace KejaHUnt_PropertiesAPI.Controllers
 
             Guid? documentIdToUse = request.DocumentId;
 
-            // Handle property image upload or edit
             if (request.ImageFile != null)
             {
-                if (documentIdToUse != Guid.Empty && documentIdToUse != null)
+                // Handle property image upload or edit
+                if (request.ImageFile != null)
                 {
-                    documentIdToUse = await _imageRepository.Edit(documentIdToUse.Value, request.ImageFile);
-                }
-                else
-                {
-                    documentIdToUse = await _imageRepository.Upload(request.ImageFile);
+                    if (documentIdToUse != Guid.Empty && documentIdToUse != null)
+                    {
+                        documentIdToUse = await _imageRepository.Edit(documentIdToUse.Value, request.ImageFile);
+                    }
+                    else
+                    {
+                        documentIdToUse = await _imageRepository.Upload(request.ImageFile);
+                    }
                 }
             }
 
