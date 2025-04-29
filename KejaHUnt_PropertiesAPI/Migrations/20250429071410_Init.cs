@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace KejaHUnt_PropertiesAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTablesPropertyUnit : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,11 +15,12 @@ namespace KejaHUnt_PropertiesAPI.Migrations
                 name: "Properties",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -29,14 +31,15 @@ namespace KejaHUnt_PropertiesAPI.Migrations
                 name: "Units",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Price = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Bathrooms = table.Column<int>(type: "int", nullable: false),
                     Size = table.Column<double>(type: "float", nullable: false),
                     NoOfUnits = table.Column<int>(type: "int", nullable: false),
-                    PropertyId = table.Column<int>(type: "int", nullable: false)
+                    DocumentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    PropertyId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {

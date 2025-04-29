@@ -20,12 +20,14 @@ namespace KejaHUnt_PropertiesAPI.Utility
                     string.IsNullOrEmpty(src.Units)
                         ? new List<Unit>()
                         : JsonConvert.DeserializeObject<List<Unit>>(src.Units)));
+
             CreateMap<Unit, CreateUnitRequestDto>().ReverseMap();
+
             CreateMap<Unit, UnitDto>().ReverseMap();
-            CreateMap<Property, PropertyDto>().ReverseMap();
-
             
+            CreateMap<UpdateUnitRequestDto, Unit>().ReverseMap();
 
+            CreateMap<Property, PropertyDto>().ReverseMap();
         }
     }
 }

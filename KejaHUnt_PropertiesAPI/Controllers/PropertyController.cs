@@ -19,12 +19,14 @@ namespace KejaHUnt_PropertiesAPI.Controllers
         private readonly IPropertyRepository _propertyRepository;
         private readonly IMapper _mapper;
         private readonly IImageRepository _imageRepository;
+        private readonly IUnitRepository _unitRepository;
 
-        public PropertyController(IPropertyRepository propertyRepository, IMapper mapper, IImageRepository imageRepository)
+        public PropertyController(IPropertyRepository propertyRepository, IMapper mapper, IImageRepository imageRepository, IUnitRepository unitRepository)
         {
             _propertyRepository = propertyRepository;
             _mapper = mapper;
             _imageRepository = imageRepository;
+            _unitRepository = unitRepository;
         }
 
         // POST: {apibaseurl}/api/property
@@ -66,8 +68,6 @@ namespace KejaHUnt_PropertiesAPI.Controllers
             return Ok(_mapper.Map<PropertyDto>(property));
         }
 
-        
-
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
@@ -77,8 +77,8 @@ namespace KejaHUnt_PropertiesAPI.Controllers
         }
 
         [HttpGet]
-        [Route("{id:int}")]
-        public async Task<IActionResult> GetPropertyByIdAsync([FromRoute] int id)
+        [Route("{id:long}")]
+        public async Task<IActionResult> GetPropertyByIdAsync([FromRoute] long id)
         {
             var property = await _propertyRepository.GetPropertyByIdAsync(id);
 
@@ -90,26 +90,28 @@ namespace KejaHUnt_PropertiesAPI.Controllers
             return Ok(_mapper.Map<PropertyDto>(property));
         }
 
-        // PUT: {apibaseurl}/api/property/{id}
         [HttpPut]
-        [Route("{id:int}")]
-        public async Task<IActionResult> UpdatePropertyById([FromRoute] int id, [FromForm] UpdatePropertyRequestDto request)
+        [Route("{id:long}")]
+        public async Task<IActionResult> UpdatePropertyById([FromRoute] long id, [FromForm] UpdatePropertyRequestDto request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Deserialize Units
-            List<UpdateUnitRequestDto> unitDtos;
-            try
+            // Deserialize Units with safe fallback
+            List<UpdateUnitRequestDto> unitDtos = new();
+            if (!string.IsNullOrWhiteSpace(request.Units))
             {
-                unitDtos = JsonConvert.DeserializeObject<List<UpdateUnitRequestDto>>(request.Units);
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid units JSON format.");
+                try
+                {
+                    unitDtos = JsonConvert.DeserializeObject<List<UpdateUnitRequestDto>>(request.Units);
+                }
+                catch (Exception)
+                {
+                    return BadRequest("Invalid units JSON format.");
+                }
             }
 
-            // Manually assign Unit ImageFiles because ASP.NET Core can't bind arrays of files automatically
+            // Assign files to corresponding units (if any)
             for (int i = 0; i < unitDtos.Count; i++)
             {
                 var unitImageKey = $"Units[{i}].ImageFile";
@@ -120,98 +122,75 @@ namespace KejaHUnt_PropertiesAPI.Controllers
                 }
             }
 
-            Guid? documentIdToUse = request.DocumentId;
-
-            if (request.ImageFile != null)
-            {
-                // Handle property image upload or edit
-                if (request.ImageFile != null)
-                {
-                    if (documentIdToUse != Guid.Empty && documentIdToUse != null)
-                    {
-                        documentIdToUse = await _imageRepository.Edit(documentIdToUse.Value, request.ImageFile);
-                    }
-                    else
-                    {
-                        documentIdToUse = await _imageRepository.Upload(request.ImageFile);
-                    }
-                }
-            }
-
-            // Fetch the property from database
+            // Fetch existing property
             var existingProperty = await _propertyRepository.GetPropertyByIdAsync(id);
             if (existingProperty == null)
-            {
                 return NotFound();
+
+            // Upload/edit property image if provided
+            if (request.ImageFile != null)
+            {
+                existingProperty.DocumentId = (request.DocumentId != null && request.DocumentId != Guid.Empty)
+                    ? await _imageRepository.Edit(request.DocumentId.Value, request.ImageFile)
+                    : await _imageRepository.Upload(request.ImageFile);
             }
 
             // Update property fields
             existingProperty.Name = request.Name;
             existingProperty.Location = request.Location;
             existingProperty.Type = request.Type;
-            existingProperty.DocumentId = documentIdToUse;
 
-            // Clear old units and add new ones
-            existingProperty.Units.Clear();
+            // Process units: update existing or add new
             foreach (var unitDto in unitDtos)
             {
+                var existingUnit = existingProperty.Units.FirstOrDefault(u => u.Id == unitDto.Id);
+
                 Guid? unitDocumentId = unitDto.DocumentId;
 
                 if (unitDto.ImageFile != null)
                 {
-                    if (unitDocumentId != null && unitDocumentId != Guid.Empty)
-                    {
-                        unitDocumentId = await _imageRepository.Edit(unitDocumentId.Value, unitDto.ImageFile);
-                    }
-                    else
-                    {
-                        unitDocumentId = await _imageRepository.Upload(unitDto.ImageFile);
-                    }
+                    unitDocumentId = (unitDocumentId != null && unitDocumentId != Guid.Empty)
+                        ? await _imageRepository.Edit(unitDocumentId.Value, unitDto.ImageFile)
+                        : await _imageRepository.Upload(unitDto.ImageFile);
                 }
 
-                var unit = new Unit
+                if (existingUnit != null)
                 {
-                    Price = unitDto.Price,
-                    Type = unitDto.Type,
-                    Bathrooms = unitDto.Bathrooms,
-                    Size = unitDto.Size,
-                    PropertyId = existingProperty.Id,
-                    NoOfUnits = unitDto.NoOfUnits,
-                    DocumentId = unitDocumentId
-                };
-                existingProperty.Units.Add(unit);
+                    // Use UpdateAsync method
+                    var updatedUnit = new Unit
+                    {
+                        Id = unitDto.Id,
+                        Price = unitDto.Price,
+                        Type = unitDto.Type,
+                        Bathrooms = unitDto.Bathrooms,
+                        Size = unitDto.Size,
+                        NoOfUnits = unitDto.NoOfUnits,
+                        PropertyId = existingProperty.Id,
+                        DocumentId = unitDocumentId
+                    };
+
+                    await _unitRepository.UpdateAsync(updatedUnit);
+                }
+                else
+                {
+                    // Add new unit
+                    var newUnit = _mapper.Map<Unit>(unitDto);
+                    newUnit.DocumentId = unitDocumentId;
+                    existingProperty.Units.Add(newUnit);
+                }
             }
 
-            // Save changes
+            // Save property updates
             await _propertyRepository.UpdateAsync(existingProperty);
 
-            // Prepare response
-            var response = new PropertyDto
-            {
-                Id = existingProperty.Id,
-                Name = existingProperty.Name,
-                Location = existingProperty.Location,
-                Type = existingProperty.Type,
-                DocumentId = existingProperty.DocumentId,
-                Units = existingProperty.Units.Select(unit => new UnitDto
-                {
-                    Price = unit.Price,
-                    Type = unit.Type,
-                    Bathrooms = unit.Bathrooms,
-                    Size = unit.Size,
-                    NoOfUnits = unit.NoOfUnits,
-                    DocumentId = unit.DocumentId
-                }).ToList()
-            };
-
-            return Ok(response);
+            return Ok(_mapper.Map<PropertyDto>(existingProperty));
         }
 
 
 
         [HttpDelete]
-        [Route("{id:int}")]
-        public async Task<IActionResult> DeleteDiaryEntry([FromRoute] int id)
+        [Route("{id:long}")]
+        public async Task<IActionResult> DeleteDiaryEntry([FromRoute] long id)
         {
             var deletedProperty = await _propertyRepository.DeleteAync(id);
 
@@ -220,23 +199,7 @@ namespace KejaHUnt_PropertiesAPI.Controllers
                 return NotFound();
             }
 
-            var response = new PropertyDto
-            {
-                Id = deletedProperty.Id,
-                Name = deletedProperty.Name,
-                Location = deletedProperty.Location,
-                Type = deletedProperty.Type,
-                Units = deletedProperty.Units.Select(unit => new UnitDto
-                {
-                    Price = unit.Price,
-                    Type = unit.Type,
-                    Bathrooms = unit.Bathrooms,
-                    Size = unit.Size,
-                    NoOfUnits = unit.NoOfUnits
-                }).ToList()
-            };
-
-            return Ok(response);
+            return Ok(_mapper.Map<PropertyDto>(deletedProperty));
 
         }
 

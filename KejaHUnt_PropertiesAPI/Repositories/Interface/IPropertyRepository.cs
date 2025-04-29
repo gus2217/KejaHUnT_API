@@ -9,11 +9,11 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Interface
 
         Task<IEnumerable<Property>> GetAllAsync();
 
-        Task<Property?> GetPropertyByIdAsync(int id);
+        Task<Property?> GetPropertyByIdAsync(long id);
 
         Task<Property?> UpdateAsync(Property property);
 
 
-        Task<Property?> DeleteAync(int id);
+        Task<Property?> DeleteAync(long id);
     }
 }

@@ -12,6 +12,6 @@ namespace KejaHUnt_PropertiesAPI.Models.Dto
         [FromForm(Name = "imageFile")]
         public IFormFile? ImageFile { get; set; } // Attach the file here
         [FromForm(Name = "units")]
-        public string Units { get; set; }
+        public string? Units { get; set; }
     }
 }

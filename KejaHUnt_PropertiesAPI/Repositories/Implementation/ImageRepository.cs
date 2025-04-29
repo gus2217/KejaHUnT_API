@@ -90,6 +90,7 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Implementation
             var endpoint = $"{fileHandlerUrl}/{documentId}";
 
             using var httpClient = new HttpClient();
+            
             var response = await httpClient.GetAsync(endpoint);
 
             if (!response.IsSuccessStatusCode)

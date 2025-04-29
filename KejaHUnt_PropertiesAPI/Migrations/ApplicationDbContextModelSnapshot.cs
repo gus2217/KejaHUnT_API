@@ -22,43 +22,13 @@ namespace KejaHUnt_PropertiesAPI.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("KejaHUnt_PropertiesAPI.Models.Domain.Image", b =>
+            modelBuilder.Entity("KejaHUnt_PropertiesAPI.Models.Domain.Property", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("DocumentId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Url")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Images");
-                });
-
-            modelBuilder.Entity("KejaHUnt_PropertiesAPI.Models.Domain.Property", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<Guid?>("DocumentId")
                         .HasColumnType("uniqueidentifier");
@@ -82,11 +52,11 @@ namespace KejaHUnt_PropertiesAPI.Migrations
 
             modelBuilder.Entity("KejaHUnt_PropertiesAPI.Models.Domain.Unit", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("bigint");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("Bathrooms")
                         .HasColumnType("int");
@@ -101,8 +71,8 @@ namespace KejaHUnt_PropertiesAPI.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("PropertyId")
-                        .HasColumnType("int");
+                    b.Property<long>("PropertyId")
+                        .HasColumnType("bigint");
 
                     b.Property<double>("Size")
                         .HasColumnType("float");

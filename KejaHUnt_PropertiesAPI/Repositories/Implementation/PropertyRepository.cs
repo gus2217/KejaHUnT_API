@@ -22,7 +22,7 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Implementation
             return property;
         }
 
-        public async Task<Property?> DeleteAync(int id)
+        public async Task<Property?> DeleteAync(long id)
         {
             var existingProperty = await _dbContext.Properties.FirstOrDefaultAsync(x => x.Id == id);
 
@@ -41,7 +41,7 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Implementation
             return await _dbContext.Properties.Include(x => x.Units).ToListAsync();
         }
 
-        public async Task<Property?> GetPropertyByIdAsync(int id)
+        public async Task<Property?> GetPropertyByIdAsync(long id)
         {
             return await _dbContext.Properties.Include(x => x.Units).FirstOrDefaultAsync(x => x.Id == id);
         }
@@ -83,7 +83,6 @@ namespace KejaHUnt_PropertiesAPI.Repositories.Implementation
                 }
             }
 
-            // Now that new units are added, clear the existing units that are not needed
 
             // Add the new units to the existing property
             existingProperty.Units = newUnits;
